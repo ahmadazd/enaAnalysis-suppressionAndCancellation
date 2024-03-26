@@ -30,7 +30,7 @@ import pandas as pd
 import datetime
 __author__ = "Ahmad Zyoud"
 
-parser = argparse.ArgumentParser(prog='enaAnalysis-suppress-Cancel.py', formatter_class=argparse.RawDescriptionHelpFormatter,
+parser = argparse.ArgumentParser(prog='analysis_bulk_suppressor.py', formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog="""
         + ============================================================ +
         |  European Nucleotide Archive (ENA) analysis duplication monitoring Tool |
@@ -62,6 +62,7 @@ def get_oracle_usr_pwd():
 Setup the connection to ENAPRO and ERAPRO. 
 """
 def setup_connection():
+    config = configparser.ConfigParser()
     oracle_usr, oracle_pwd = get_oracle_usr_pwd()
     client_lib_dir = os.getenv('ORACLE_CLIENT_LIB')
     if database == 'enapro':
@@ -90,6 +91,7 @@ def setup_connection():
             print(error)
 
 def suppression(connection, action):
+    config = configparser.ConfigParser()
     c = connection.cursor()
     connection.autocommit = True
     df = pd.read_csv(args.file, sep="\t", header=None)
@@ -98,7 +100,7 @@ def suppression(connection, action):
     dict ={}
     for accession in df[0]:
         c.execute(
-            f"update analysis set status_id='{action}', hold_date=null, status_comment ='Duplication' where analysis_id in ('{accession}')")
+            f"update analysis set status_id='{action}', hold_date=null, status_comment ='{config['STATUS']['statusComment']}' where analysis_id in ('{accession}')")
         rowcount = rowcount + int(c.rowcount)
         accession_list.append(accession)
     rowcount_total = 'Number of rows updated: ' + str(rowcount)

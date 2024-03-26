@@ -11,3 +11,6 @@ port =
 serviceName = 
 userName = 
 password = 
+
+[STATUS]
+statusComment = 
